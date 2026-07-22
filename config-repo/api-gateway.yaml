@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: test-service
+          uri: lb://TEST-SERVICE
+          predicates:
+            - Path=/api/test/**
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
