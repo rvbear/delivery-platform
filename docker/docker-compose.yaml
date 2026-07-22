@@ -1,0 +1,75 @@
+services:
+
+  discovery-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/discovery-service.Dockerfile
+      args:
+        JAR_FILE: infrastructure/discovery-service/build/libs/*.jar
+
+    container_name: discovery-service
+
+    ports:
+      - "8761:8761"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - delivery-network
+
+
+  config-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/config-service.Dockerfile
+      args:
+        JAR_FILE: infrastructure/config-service/build/libs/*.jar
+
+    container_name: config-service
+
+    ports:
+      - "8888:8888"
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+
+    networks:
+      - delivery-network
+
+
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/api-gateway.Dockerfile
+      args:
+        JAR_FILE: api-gateway/build/libs/*.jar
+
+    container_name: api-gateway
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+
+      config-service:
+        condition: service_healthy
+
+    networks:
+      - delivery-network
+
+networks:
+  delivery-network:
+    driver: bridge
