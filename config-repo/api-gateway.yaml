@@ -10,7 +10,7 @@ spring:
     gateway:
       routes:
         - id: test-service
-          uri: lb://TEST-SERVICE
+          uri: lb://test-service
           predicates:
             - Path=/api/test/**
 
