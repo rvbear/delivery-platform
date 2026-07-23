@@ -5,7 +5,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfiles/discovery-service.Dockerfile
       args:
-        JAR_FILE: infrastructure/discovery-service/build/libs/*.jar
+        JAR_FILE: discovery-service/build/libs/*.jar
 
     container_name: discovery-service
 
@@ -27,7 +27,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfiles/config-service.Dockerfile
       args:
-        JAR_FILE: infrastructure/config-service/build/libs/*.jar
+        JAR_FILE: config-service/build/libs/*.jar
 
     container_name: config-service
 
