@@ -6,7 +6,6 @@ spring:
   application:
     name: config-service
 
-
   cloud:
     config:
       server:
@@ -14,3 +13,11 @@ spring:
           uri: https://github.com/rvbear/delivery-platform
           default-label: main
           search-paths: config-repo
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
