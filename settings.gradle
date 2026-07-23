@@ -3,5 +3,6 @@ rootProject.name = 'delivery-platform'
 include(
         'infrastructure:discovery-service',
         'infrastructure:config-service',
-        'api-gateway'
+        'api-gateway',
+        'services:test-service'
 )

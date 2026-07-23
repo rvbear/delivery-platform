@@ -60,11 +60,43 @@ services:
     ports:
       - "8080:8080"
 
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
     depends_on:
       discovery-service:
         condition: service_healthy
 
       config-service:
+        condition: service_healthy
+
+    networks:
+      - delivery-network
+
+
+  test-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfiles/test-service.Dockerfile
+      args:
+        JAR_FILE: services/test-service/build/libs/*.jar
+
+    container_name: test-service
+
+    ports:
+      - "9000:9000"
+
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+
+      config-service:
+        condition: service_healthy
+
+      api-gateway:
         condition: service_healthy
 
     networks:
