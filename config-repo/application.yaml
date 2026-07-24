@@ -2,6 +2,12 @@ spring:
   jackson:
     time-zone: Asia/Seoul
 
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
 
 management:
   endpoints:
@@ -10,7 +16,6 @@ management:
         include:
           - health
           - info
-
 
 logging:
   level:

@@ -1,7 +1,6 @@
 server:
   port: 8080
 
-
 spring:
   application:
     name: api-gateway
@@ -11,15 +10,14 @@ spring:
       server:
         webflux:
           routes:
+            # test service 추후 삭제 예정
             - id: test-service
               uri: lb://test-service
               predicates:
                 - Path=/api/test/**
 
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://discovery-service:8761/eureka/
+            # auth service
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
