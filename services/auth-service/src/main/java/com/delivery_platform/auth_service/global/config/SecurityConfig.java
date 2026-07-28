@@ -1,4 +1,4 @@
-package com.delivery_platform.auth_service.auth.infrastructure.security;
+package com.delivery_platform.auth_service.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
