@@ -1,13 +1,35 @@
 package com.delivery_platform.auth_service.global.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public interface ErrorCode {
+@Getter
+public enum ErrorCode {
+    // common
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.", "CM-001"),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다.", "CM-002"),
+    INVALID_STATE(HttpStatus.CONFLICT, "요청을 처리할 수 없는 상태입니다.", "CM-003"),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "요청값이 올바르지 않습니다.", "CM-004"),
+    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 미디어 타입입니다.", "CM-005"),
 
-    HttpStatus getStatus();
+    // auth
+    AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 올바르지 않습니다.", "U-001"),
+    AUTH_FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", "U-005"),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "입력조건을 불충족하였습니다.", "U-002"),
+    DUPLICATE_USERNAME(HttpStatus.CONFLICT, "동일 아이디가 존재합니다.", "U-003"),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "U-004");
 
-    String getCode();
+    private final String message;
+    private final HttpStatus status;
+    private final String code;
 
-    String getMessage();
-
+    ErrorCode(
+            HttpStatus status,
+            String message,
+            String code
+    ) {
+        this.status = status;
+        this.message = message;
+        this.code = code;
+    }
 }
