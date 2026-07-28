@@ -76,31 +76,11 @@ services:
     networks:
       - delivery-network
 
+  # PostgreSQL
 
-  test-service:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfiles/test-service.Dockerfile
-      args:
-        JAR_FILE: services/test-service/build/libs/*.jar
+  # Redis
 
-    container_name: test-service
-
-    ports:
-      - "9000:9000"
-
-    depends_on:
-      discovery-service:
-        condition: service_healthy
-
-      config-service:
-        condition: service_healthy
-
-      api-gateway:
-        condition: service_healthy
-
-    networks:
-      - delivery-network
+  # Kafka
 
 networks:
   delivery-network:
