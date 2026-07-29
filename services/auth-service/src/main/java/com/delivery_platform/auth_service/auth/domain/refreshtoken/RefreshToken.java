@@ -1,18 +1,20 @@
 package com.delivery_platform.auth_service.auth.domain.refreshtoken;
 
+import com.delivery_platform.auth_service.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "p_refresh_token")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken {
+public class RefreshToken extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -24,18 +26,15 @@ public class RefreshToken {
     private String token;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @Column(nullable = false)
     private boolean revoked;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
     private RefreshToken(
             UUID userId,
             String token,
-            LocalDateTime expiresAt
+            Instant expiresAt
     ) {
         this.userId = userId;
         this.token = token;
@@ -46,7 +45,7 @@ public class RefreshToken {
     public static RefreshToken create(
             UUID userId,
             String token,
-            LocalDateTime expiresAt
+            Instant expiresAt
     ) {
         return new RefreshToken(
                 userId,
@@ -57,13 +56,13 @@ public class RefreshToken {
 
     // 토큰 만료 여부
     public boolean isExpired() {
-        return expiresAt.isBefore(LocalDateTime.now());
+        return expiresAt.isBefore(Instant.now());
     }
 
     // 토큰 재발급
     public void renew(
             String token,
-            LocalDateTime expiresAt
+            Instant expiresAt
     ) {
         this.token = token;
         this.expiresAt = expiresAt;

@@ -1,11 +1,19 @@
 package com.delivery_platform.auth_service.auth.infrastructure.jwt;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "jwt")
-public record JwtProperties(
-        String secret,
-        long accessTokenExpiration,
-        long refreshTokenExpiration
-) {
+@Getter
+@Component
+public class JwtProperties {
+
+    @Value("${jwt.secret-key}")
+    private String secretKey;
+
+    @Value("${jwt.access-token-expiration}")
+    private Long accessTokenExpiration;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private Long refreshTokenExpiration;
 }
