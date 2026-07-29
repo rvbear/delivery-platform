@@ -1,5 +1,7 @@
 services:
 
+  # Service Discovery (Eureka)
+  # 모든 마이크로서비스의 등록 및 조회
   discovery-service:
     build:
       context: ..
@@ -21,7 +23,8 @@ services:
     networks:
       - delivery-network
 
-
+  # Configuration Server
+  # 중앙 설정 관리 및 각 서비스에 설정 제공
   config-service:
     build:
       context: ..
@@ -34,20 +37,21 @@ services:
     ports:
       - "8888:8888"
 
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
     depends_on:
       discovery-service:
         condition: service_healthy
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
     networks:
       - delivery-network
 
-
+  # API Gateway
+  # 모든 클라이언트 요청의 단일 진입점 및 라우팅
   api-gateway:
     build:
       context: ..
@@ -60,12 +64,6 @@ services:
     ports:
       - "8080:8080"
 
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -76,12 +74,111 @@ services:
     networks:
       - delivery-network
 
-  # PostgreSQL
 
-  # Redis
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
 
-  # Kafka
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - delivery-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    command: redis-server --appendonly yes
+
+    volumes:
+      - redis-data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - delivery-network
+
+  kafka:
+    image: confluentinc/cp-kafka:8.1.0
+    container_name: kafka
+
+    hostname: kafka
+
+    ports:
+      - "9092:9092"
+
+    environment:
+      # KRaft
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      # Listener
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # Controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+
+      # Single Node
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+
+    depends_on:
+      - kafka
+
+    ports:
+      - "18080:18080"
+
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+volumes:
+  postgres-data:
+  redis-data:
+  kafka-data:
 
 networks:
   delivery-network:
+    name: delivery-network
     driver: bridge

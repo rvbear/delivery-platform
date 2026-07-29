@@ -20,9 +20,12 @@ services:
       context: ..
       dockerfile: docker/Dockerfiles/auth-service.Dockerfile
       args:
-        JAR_FILE: services/test-service/build/libs/*.jar
+        JAR_FILE: services/auth-service/build/libs/*.jar
 
-    container_name: test-service
+    env_file:
+      - ../.env
+
+    container_name: auth-service
 
     networks:
       - delivery-network
@@ -32,9 +35,12 @@ services:
       context: ..
       dockerfile: docker/Dockerfiles/user-service.Dockerfile
       args:
-        JAR_FILE: services/test-service/build/libs/*.jar
+        JAR_FILE: services/user-service/build/libs/*.jar
 
-    container_name: test-service
+    env_file:
+      - ../.env
+
+    container_name: user-service
 
     networks:
       - delivery-network
