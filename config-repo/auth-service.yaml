@@ -2,7 +2,15 @@ server:
   # 사용 가능한 port 자동 설정
   port: 0
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
 
 spring:
   application:
     name: auth-service
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/auth_db
+    driver-class-name: org.postgresql.Driver
